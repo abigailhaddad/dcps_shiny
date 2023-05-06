@@ -1,5 +1,5 @@
 # Ignore a specific directory
 www/
-_pycache/
+ __pycache__/
 data/
 
