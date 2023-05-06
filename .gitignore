@@ -1,0 +1,5 @@
+# Ignore a specific directory
+www/
+_pycache/
+data/
+
