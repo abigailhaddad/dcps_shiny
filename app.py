@@ -104,7 +104,7 @@ def make_download_button(id: str, label: str, extra: Any = None):
     return ui.row(
         div(
             div(
-                {"class": "card-body"},
+                {"class": "card-body", "style": "padding-top: 20px;"},
                 extra,
                 ui.download_button(id, label, class_="btn-primary", style="font-size: 0.8rem; padding: 6px 12px; background-color: #1f77b4;"),
             ),
@@ -119,13 +119,14 @@ app_ui = ui.page_fluid(
             body {
               font-family: "Times New Roman", Times, serif;
               color: black;
+              padding-left: 20px;
             }
             .title {
               font-size: 30px;
               text-align: center;
               font-weight: bold;
               margin-bottom: 20px;
-              margin-top: 10px;
+              margin-top: 20px;
             }
             .column-text {
               text-align: left;
@@ -133,6 +134,7 @@ app_ui = ui.page_fluid(
             }
             .table th {
     text-align: left;
+    padding-left: 10px;
 }
         """)
     ),
