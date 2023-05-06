@@ -49,10 +49,8 @@ def defineFigure(df, df_with_bin, raw_column):
         title={
             'text': f'Number of Grades/Schools by {raw_column}',
             'font': {'family': 'Times New Roman', 'size': 20, 'color': 'black'},
-            'y': 0.9,
             'x': 0.5,
             'xanchor': 'center',
-            'yanchor': 'top'
         },
         xaxis_title=raw_column,
         yaxis_title='Count',
@@ -120,6 +118,7 @@ app_ui = ui.page_fluid(
               font-family: "Times New Roman", Times, serif;
               color: black;
               padding-left: 20px;
+              padding-right: 20px;
             }
             .title {
               font-size: 30px;
@@ -176,7 +175,7 @@ app_ui = ui.page_fluid(
             4,
             ui.input_slider("total_waitlisted_slider", "Total Waitlisted", min=0, max=100, value=(0, 100), step=1, drag_range=True)
         )),
-    ui.input_action_button("reset_filters", "Reset Filters"),
+    ui.input_action_button("reset_filters", "Reset Filters", class_="btn-primary", style="font-size: 0.8rem; padding: 6px 12px; background-color: #1f77b4;"),
 
     ui.row(
         ui.column(
