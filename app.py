@@ -333,14 +333,16 @@ def server(input, output, session):
         if input.reset_filters() is not None:
             ui.update_select("school_filter", selected=[])
             ui.update_select("grade_filter", selected=[])
-            ui.update_numeric("min_lottery_seats_input", value=None)
-            ui.update_numeric("max_lottery_seats_input", value=None)
-            ui.update_numeric("min_total_applications_input", value=None)
-            ui.update_numeric("max_total_applications_input", value=None)
-            ui.update_numeric("min_no_preference_input", value=None)
-            ui.update_numeric("max_no_preference_input", value=None)
-            ui.update_numeric("min_total_waitlisted_input", value=None)
-            ui.update_numeric("max_total_waitlisted_input", value=None)
+            ui.update_numeric("min_lottery_seats_input", value=min_lottery_seats)
+            ui.update_numeric("max_lottery_seats_input", value=max_lottery_seats)
+            ui.update_numeric("min_total_applications_input", value=min_total_applications)
+            ui.update_numeric("max_total_applications_input", value=max_total_applications)
+            ui.update_numeric("min_no_preference_input", value=min_no_preference)
+            ui.update_numeric("max_no_preference_input", value=max_no_preference)
+            ui.update_numeric("min_total_waitlisted_input", value=min_total_waitlisted)
+            ui.update_numeric("max_total_waitlisted_input", value=max_total_waitlisted)
+
+            
     @session.download()
     def download1():
         """
