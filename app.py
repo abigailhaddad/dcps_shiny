@@ -16,6 +16,11 @@ def readCleanCol():
     df=df.fillna(0)
     return(df[columns])
 
+# Define a function to create a numeric input box
+def numeric_input_box(id: str, label: str, min_val: int, max_val: int, step: int = 1, default_val: int = None):
+    return ui.input_numeric(id, label, value=default_val, min=min_val, max=max_val, step=step, width=None)
+
+
 
 def defineFigure(df, df_with_bin, raw_column):
     bin_size = 25
@@ -159,25 +164,27 @@ app_ui = ui.page_fluid(
             4,
             ui.input_select("grade_filter", "Select Grade(s)", choices=[], multiple=True)
         ),
-        ui.column(
+         ui.column(
             4,
-            #ui.input_slider("lottery_seats_slider", "Lottery Seats", min=0, max=100, value=(0, 100), step=1, drag_range=True)
-            ui.input_numeric("min_lottery_seats_input", "Min Lottery Seats", value=None, min=0, max=100, step=1, width=None),
-            ui.input_numeric("max_lottery_seats_input", "Max Lottery Seats", value=None, min=0, max=100, step=1, width=None)
-
+            numeric_input_box("min_lottery_seats_input", "Min Lottery Seats", min_val=0, max_val=100),
+            numeric_input_box("max_lottery_seats_input", "Max Lottery Seats", min_val=0, max_val=100)
         ),
         ui.column(
             4,
-            ui.input_slider("total_applications_slider", "Total Applications", min=0, max=100, value=(0, 100), step=1, drag_range=True)
+            numeric_input_box("min_total_applications_input", "Min Total Applications", min_val=0, max_val=100),
+            numeric_input_box("max_total_applications_input", "Max Total Applications", min_val=0, max_val=100)
         ),
         ui.column(
             4,
-            ui.input_slider("no_preference_slider", "Match - No preference", min=0, max=100, value=(0, 100), step=1, drag_range=True)
+            numeric_input_box("min_no_preference_input", "Min Match - No preference", min_val=0, max_val=100),
+            numeric_input_box("max_no_preference_input", "Max Match - No preference", min_val=0, max_val=100)
         ),
         ui.column(
             4,
-            ui.input_slider("total_waitlisted_slider", "Total Waitlisted", min=0, max=100, value=(0, 100), step=1, drag_range=True)
+            numeric_input_box("min_total_waitlisted_input", "Min Total Waitlisted", min_val=0, max_val=100),
+            numeric_input_box("max_total_waitlisted_input", "Max Total Waitlisted", min_val=0, max_val=100)
         )),
+
     ui.input_action_button("reset_filters", "Reset Filters", class_="btn-primary", style="font-size: 0.8rem; padding: 6px 12px; background-color: #1f77b4;"),
 
     ui.row(
@@ -223,33 +230,41 @@ def server(input, output, session):
     # Define function to get min and max values for a specific column in the DataFrame
     def get_min_max(column):
         return int(df[column].min()), int(df[column].max())
-
+      
+    
     # Update the choices for the school filter
     ui.update_select("school_filter", choices=df['School Name'].unique().tolist())
     input.school_filter.choices = df['School Name'].unique().tolist()
 
+    # Min and Max Lottery Seats
     min_lottery_seats, max_lottery_seats = get_min_max('Lottery Seats')
     ui.update_numeric("min_lottery_seats_input", value=min_lottery_seats)
     ui.update_numeric("max_lottery_seats_input", value=max_lottery_seats)
     input.min_lottery_seats_input.value = min_lottery_seats
-    input.min_lottery_seats_input.value = max_lottery_seats
+    input.max_lottery_seats_input.value = max_lottery_seats
 
-
-
+    # Min and Max Total Applications
     min_total_applications, max_total_applications = get_min_max('Total Applications')
-    ui.update_slider("total_applications_slider", min=min_total_applications, max=max_total_applications, value=(min_total_applications, max_total_applications))
-    input.total_applications_slider.min = min_total_applications
-    input.total_applications_slider.max = max_total_applications
+    ui.update_numeric("min_total_applications_input", value=min_total_applications)
+    ui.update_numeric("max_total_applications_input", value=max_total_applications)
+    input.min_total_applications_input.value = min_total_applications
+    input.max_total_applications_input.value = max_total_applications
 
+    # Min and Max Match - No preference
     min_no_preference, max_no_preference = get_min_max("Match - No preference")
-    ui.update_slider("no_preference_slider", min=min_no_preference, max=max_no_preference, value=(min_no_preference, max_no_preference))
-    input.no_preference_slider.min = min_no_preference
-    input.no_preference_slider.max = max_no_preference
+    ui.update_numeric("min_no_preference_input", value=min_no_preference)
+    ui.update_numeric("max_no_preference_input", value=max_no_preference)
+    input.min_no_preference_input.value = min_no_preference
+    input.max_no_preference_input.value = max_no_preference
 
+    # Min and Max Total Waitlisted
     min_total_waitlisted, max_total_waitlisted = get_min_max('Total Waitlisted')
-    ui.update_slider("total_waitlisted_slider", min=min_total_waitlisted, max=max_total_waitlisted, value=(min_total_waitlisted, max_total_waitlisted))
-    input.total_waitlisted_slider.min = min_total_waitlisted
-    input.total_waitlisted_slider.max = max_total_waitlisted
+    ui.update_numeric("min_total_waitlisted_input", value=min_total_waitlisted)
+    ui.update_numeric("max_total_waitlisted_input", value=max_total_waitlisted)
+    input.min_total_waitlisted_input.value = min_total_waitlisted
+    input.max_total_waitlisted_input.value = max_total_waitlisted
+
+
 
     @reactive.Effect
     def update_filtered_data():
@@ -307,11 +322,14 @@ def server(input, output, session):
         if input.reset_filters() is not None:
             ui.update_select("school_filter", selected=[])
             ui.update_select("grade_filter", selected=[])
-            ui.update_slider("lottery_seats_slider", value=(min_lottery_seats, max_lottery_seats))
-            ui.update_slider("total_applications_slider", value=(min_total_applications, max_total_applications))
-            ui.update_slider("no_preference_slider", value=(min_no_preference, max_no_preference))
-            ui.update_slider("total_waitlisted_slider", value=(min_total_waitlisted, max_total_waitlisted))
-    
+            ui.update_numeric("min_lottery_seats_input", value=None)
+            ui.update_numeric("max_lottery_seats_input", value=None)
+            ui.update_numeric("min_total_applications_input", value=None)
+            ui.update_numeric("max_total_applications_input", value=None)
+            ui.update_numeric("min_no_preference_input", value=None)
+            ui.update_numeric("max_no_preference_input", value=None)
+            ui.update_numeric("min_total_waitlisted_input", value=None)
+            ui.update_numeric("max_total_waitlisted_input", value=None)
     @session.download()
     def download1():
         """
