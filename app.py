@@ -161,7 +161,10 @@ app_ui = ui.page_fluid(
         ),
         ui.column(
             4,
-            ui.input_slider("lottery_seats_slider", "Lottery Seats", min=0, max=100, value=(0, 100), step=1, drag_range=True)
+            #ui.input_slider("lottery_seats_slider", "Lottery Seats", min=0, max=100, value=(0, 100), step=1, drag_range=True)
+            ui.input_numeric("min_lottery_seats_input", "Min Lottery Seats", value=None, min=0, max=100, step=1, width=None),
+            ui.input_numeric("max_lottery_seats_input", "Max Lottery Seats", value=None, min=0, max=100, step=1, width=None)
+
         ),
         ui.column(
             4,
@@ -225,11 +228,13 @@ def server(input, output, session):
     ui.update_select("school_filter", choices=df['School Name'].unique().tolist())
     input.school_filter.choices = df['School Name'].unique().tolist()
 
-    # Update the slider ranges
     min_lottery_seats, max_lottery_seats = get_min_max('Lottery Seats')
-    ui.update_slider("lottery_seats_slider", min=min_lottery_seats, max=max_lottery_seats, value=(min_lottery_seats, max_lottery_seats))
-    input.lottery_seats_slider.min = min_lottery_seats
-    input.lottery_seats_slider.max = max_lottery_seats
+    ui.update_numeric("min_lottery_seats_input", value=min_lottery_seats)
+    ui.update_numeric("max_lottery_seats_input", value=max_lottery_seats)
+    input.min_lottery_seats_input.value = min_lottery_seats
+    input.min_lottery_seats_input.value = max_lottery_seats
+
+
 
     min_total_applications, max_total_applications = get_min_max('Total Applications')
     ui.update_slider("total_applications_slider", min=min_total_applications, max=max_total_applications, value=(min_total_applications, max_total_applications))
