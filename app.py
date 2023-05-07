@@ -163,27 +163,30 @@ app_ui = ui.page_fluid(
         ui.column(
             4,
             ui.input_select("grade_filter", "Select Grade(s)", choices=[], multiple=True)
-        ),
-         ui.column(
-            4,
-            numeric_input_box("min_lottery_seats_input", "Min Lottery Seats", min_val=0, max_val=100),
-            numeric_input_box("max_lottery_seats_input", "Max Lottery Seats", min_val=0, max_val=100)
-        ),
-        ui.column(
-            4,
-            numeric_input_box("min_total_applications_input", "Min Total Applications", min_val=0, max_val=100),
-            numeric_input_box("max_total_applications_input", "Max Total Applications", min_val=0, max_val=100)
-        ),
-        ui.column(
-            4,
-            numeric_input_box("min_no_preference_input", "Min Match - No preference", min_val=0, max_val=100),
-            numeric_input_box("max_no_preference_input", "Max Match - No preference", min_val=0, max_val=100)
-        ),
-        ui.column(
-            4,
-            numeric_input_box("min_total_waitlisted_input", "Min Total Waitlisted", min_val=0, max_val=100),
-            numeric_input_box("max_total_waitlisted_input", "Max Total Waitlisted", min_val=0, max_val=100)
         )),
+        ui.row(
+        ui.column(
+            4,
+            ui.row(
+                ui.div(numeric_input_box("min_lottery_seats_input", "Min Lottery Seats", min_val=0, max_val=100), style="width: 50%; display: inline-block;"),
+                ui.div(numeric_input_box("max_lottery_seats_input", "Max Lottery Seats", min_val=0, max_val=100), style="width: 50%; display: inline-block;"),
+            ),
+            ui.row(
+                ui.div(numeric_input_box("min_total_applications_input", "Min Total Applications", min_val=0, max_val=100), style="width: 50%; display: inline-block;"),
+                ui.div(numeric_input_box("max_total_applications_input", "Max Total Applications", min_val=0, max_val=100), style="width: 50%; display: inline-block;"),
+            ),
+            ui.row(
+                ui.div(numeric_input_box("min_no_preference_input", "Min Match - No preference", min_val=0, max_val=100), style="width: 50%; display: inline-block;"),
+                ui.div(numeric_input_box("max_no_preference_input", "Max Match - No preference", min_val=0, max_val=100), style="width: 50%; display: inline-block;"),
+            ),
+            ui.row(
+                ui.div(numeric_input_box("min_total_waitlisted_input", "Min Total Waitlisted", min_val=0, max_val=100), style="width: 50%; display: inline-block;"),
+                ui.div(numeric_input_box("max_total_waitlisted_input", "Max Total Waitlisted", min_val=0, max_val=100), style="width: 50%; display: inline-block;"),
+            ),
+        ),
+    ),
+
+        
 
     ui.input_action_button("reset_filters", "Reset Filters", class_="btn-primary", style="font-size: 0.8rem; padding: 6px 12px; background-color: #1f77b4;"),
 
