@@ -143,50 +143,52 @@ app_ui = ui.page_fluid(
         """)
     ),
     ui.row(
-    ui.column(
-        2,
-        make_download_button(
-            "download1",
-            label="Download CSV",
+        ui.column(
+            1,
+            make_download_button(
+                "download1",
+                label="Download CSV",
+            ),
+        ),
+        ui.column(
+            11,
+            ui.tags.h1("DCPS School Lottery Data for 2023-2024 School Year", class_="title"),
         ),
     ),
-    ui.column(
-        10,
-        ui.tags.h1("DCPS School Lottery Data for 2023-2024 School Year", class_="title"),
-    ),
-),
     ui.row(
         ui.column(
-            4,
-            ui.input_select("school_filter", "Select School(s)", choices=[], multiple=True)
+            6,
+            ui.row(
+                ui.column(
+                    6,
+                    ui.input_select("school_filter", "Select School(s)", choices=[], multiple=True)
+                ),
+                ui.column(
+                    6,
+                    ui.input_select("grade_filter", "Select Grade(s)", choices=[], multiple=True)
+                ),
+            ),
         ),
         ui.column(
-            4,
-            ui.input_select("grade_filter", "Select Grade(s)", choices=[], multiple=True)
-        )),
-        ui.row(
-        ui.column(
-            4,
+            6,
             ui.row(
-                ui.div(numeric_input_box("min_lottery_seats_input", "Min Lottery Seats", min_val=0, max_val=100), style="width: 50%; display: inline-block;"),
-                ui.div(numeric_input_box("max_lottery_seats_input", "Max Lottery Seats", min_val=0, max_val=100), style="width: 50%; display: inline-block;"),
-            ),
-            ui.row(
-                ui.div(numeric_input_box("min_total_applications_input", "Min Total Applications", min_val=0, max_val=100), style="width: 50%; display: inline-block;"),
-                ui.div(numeric_input_box("max_total_applications_input", "Max Total Applications", min_val=0, max_val=100), style="width: 50%; display: inline-block;"),
-            ),
-            ui.row(
-                ui.div(numeric_input_box("min_no_preference_input", "Min Match - No preference", min_val=0, max_val=100), style="width: 50%; display: inline-block;"),
-                ui.div(numeric_input_box("max_no_preference_input", "Max Match - No preference", min_val=0, max_val=100), style="width: 50%; display: inline-block;"),
-            ),
-            ui.row(
-                ui.div(numeric_input_box("min_total_waitlisted_input", "Min Total Waitlisted", min_val=0, max_val=100), style="width: 50%; display: inline-block;"),
-                ui.div(numeric_input_box("max_total_waitlisted_input", "Max Total Waitlisted", min_val=0, max_val=100), style="width: 50%; display: inline-block;"),
+                ui.column(
+                    6,
+                    numeric_input_box("min_lottery_seats_input", "Min Lottery Seats", min_val=0, max_val=100),
+                    numeric_input_box("min_total_applications_input", "Min Total Applications", min_val=0, max_val=100),
+                    numeric_input_box("min_no_preference_input", "Min Match - No preference", min_val=0, max_val=100),
+                    numeric_input_box("min_total_waitlisted_input", "Min Total Waitlisted", min_val=0, max_val=100),
+                ),
+                ui.column(
+                    6,
+                    numeric_input_box("max_lottery_seats_input", "Max Lottery Seats", min_val=0, max_val=100),
+                    numeric_input_box("max_total_applications_input", "Max Total Applications", min_val=0, max_val=100),
+                    numeric_input_box("max_no_preference_input", "Max Match - No preference", min_val=0, max_val=100),
+                    numeric_input_box("max_total_waitlisted_input", "Max Total Waitlisted", min_val=0, max_val=100),
+                ),
             ),
         ),
     ),
-
-        
 
     ui.input_action_button("reset_filters", "Reset Filters", class_="btn-primary", style="font-size: 0.8rem; padding: 6px 12px; background-color: #1f77b4;"),
 
@@ -211,6 +213,7 @@ app_ui = ui.page_fluid(
 
     ui.output_table("table")
 )
+
 
 
 
@@ -271,34 +274,39 @@ def server(input, output, session):
 
     @reactive.Effect
     def update_filtered_data():
-        selected_schools = input.school_filter()
-        selected_grades = input.grade_filter()
-        selected_lottery_seats_range = input.lottery_seats_slider()
-        selected_total_applications_range = input.total_applications_slider()
-        selected_no_preference_range = input.no_preference_slider()
-        selected_total_waitlisted_range = input.total_waitlisted_slider()
+      selected_schools = input.school_filter()
+      selected_grades = input.grade_filter()
+      min_lottery_seats = input.min_lottery_seats_input()
+      max_lottery_seats = input.max_lottery_seats_input()
+      min_total_applications = input.min_total_applications_input()
+      max_total_applications = input.max_total_applications_input()
+      min_no_preference = input.min_no_preference_input()
+      max_no_preference = input.max_no_preference_input()
+      min_total_waitlisted = input.min_total_waitlisted_input()
+      max_total_waitlisted = input.max_total_waitlisted_input()
 
-        filtered_df = df.copy()
+      filtered_df = df.copy()
 
-        if selected_schools:
-            filtered_df = filtered_df[filtered_df['School Name'].isin(selected_schools)]
+      if selected_schools:
+        filtered_df = filtered_df[filtered_df['School Name'].isin(selected_schools)]
 
-        if selected_grades:
-            filtered_df = filtered_df[filtered_df['Grade'].isin(selected_grades)]
+      if selected_grades:
+        filtered_df = filtered_df[filtered_df['Grade'].isin(selected_grades)]
 
-        if selected_lottery_seats_range != (min_lottery_seats, max_lottery_seats):
-            filtered_df = filtered_df[(filtered_df['Lottery Seats'] >= selected_lottery_seats_range[0]) & (filtered_df['Lottery Seats'] <= selected_lottery_seats_range[1])]
+      if min_lottery_seats is not None and max_lottery_seats is not None:
+        filtered_df = filtered_df[(filtered_df['Lottery Seats'] >= min_lottery_seats) & (filtered_df['Lottery Seats'] <= max_lottery_seats)]
 
-        if selected_total_applications_range != (min_total_applications, max_total_applications):
-            filtered_df = filtered_df[(filtered_df['Total Applications'] >= selected_total_applications_range[0]) & (filtered_df['Total Applications'] <= selected_total_applications_range[1])]
+      if min_total_applications is not None and max_total_applications is not None:
+        filtered_df = filtered_df[(filtered_df['Total Applications'] >= min_total_applications) & (filtered_df['Total Applications'] <= max_total_applications)]
 
-        if selected_no_preference_range != (min_no_preference, max_no_preference):
-            filtered_df = filtered_df[(filtered_df["Match - No preference"] >= selected_no_preference_range[0]) & (filtered_df["Match - No preference"] <= selected_no_preference_range[1])]
+      if min_no_preference is not None and max_no_preference is not None:
+        filtered_df = filtered_df[(filtered_df["Match - No preference"] >= min_no_preference) & (filtered_df["Match - No preference"] <= max_no_preference)]
 
-        if selected_total_waitlisted_range != (min_total_waitlisted, max_total_waitlisted):
-            filtered_df = filtered_df[(filtered_df['Total Waitlisted'] >= selected_total_waitlisted_range[0]) & (filtered_df['Total Waitlisted'] <= selected_total_waitlisted_range[1])]
+      if min_total_waitlisted is not None and max_total_waitlisted is not None:
+        filtered_df = filtered_df[(filtered_df['Total Waitlisted'] >= min_total_waitlisted) & (filtered_df['Total Waitlisted'] <= max_total_waitlisted)]
 
-        filtered_data.set(filtered_df)
+      filtered_data.set(filtered_df)
+
 
     @reactive.Effect
     def update_figures():
