@@ -22,31 +22,39 @@ def numeric_input_box(id: str, label: str, min_val: int, max_val: int, step: int
 
 
 
+import math
+
 def defineFigure(df, df_with_bin, raw_column):
     bin_size = 25
     df_with_bin = df.copy()  # Create a new DataFrame
     df_with_bin['Bin'] = df_with_bin[raw_column].apply(lambda x: math.floor(x / bin_size) * bin_size)
-    bin_counts = df_with_bin.groupby(['Bin', 'School Name', 'Grade'])[raw_column].count().reset_index(name='Count')
-    bin_counts_grouped = bin_counts.groupby(['Bin'])['Count'].sum()
-
+    bin_counts = df_with_bin.groupby(['Year', 'Bin', 'School Name', 'Grade'])[raw_column].count().reset_index(name='Count')
+    years = sorted(df['Year'].unique())
+    colors = ['rgba(31, 119, 180, 0.8)', 'rgba(255, 127, 14, 0.8)', 'rgba(44, 160, 44, 0.8)', 'rgba(214, 39, 40, 0.8)']  # Add more colors if needed
     bars = []
-    for bin_value, count in bin_counts_grouped.items():
-        schools_with_this_bin = bin_counts[bin_counts['Bin'] == bin_value]
-        hover_text = "<br>".join([
-           f"School Name: {row['School Name']} <br>Grade: {row['Grade']} <br>{raw_column}: {df.loc[(df['School Name'] == row['School Name']) & (df['Grade'] == row['Grade']), raw_column].values[0]}"
-           for _, row in schools_with_this_bin.iterrows()])
+    for year, color in zip(years, colors[:len(years)]):
+        year_bin_counts = bin_counts[bin_counts['Year'] == year]
+        bin_counts_grouped = year_bin_counts.groupby(['Bin'])['Count'].sum()
 
-        bars.append(go.Bar(
-            x=[bin_value],
-            y=[count],
-            marker_color='blue',
-            marker=dict(
-               opacity=1.0
-            ),
-            hovertemplate=hover_text + "<extra></extra>",
-            showlegend=False
-        ))
+        first_bin_for_year = True
+        for bin_value, count in bin_counts_grouped.items():
+            schools_with_this_bin = year_bin_counts[year_bin_counts['Bin'] == bin_value]
+            hover_text = "<br>".join([
+               f"School Name: {row['School Name']} <br>Grade: {row['Grade']} <br>Year: {row['Year']} <br>{raw_column}: {df.loc[(df['School Name'] == row['School Name']) & (df['Grade'] == row['Grade']), raw_column].values[0]}"
+               for _, row in schools_with_this_bin.iterrows()])
 
+            bars.append(go.Bar(
+                x=[bin_value],
+                y=[count],
+                marker_color=color,
+                marker=dict(
+                   opacity=1.0
+                ),
+                hovertemplate=hover_text + "<extra></extra>",
+                name=str(year),
+                showlegend=first_bin_for_year
+            ))
+            first_bin_for_year = False
     # Create the bar chart
     fig = go.Figure(data=bars)
     # Customize the chart's appearance
@@ -79,15 +87,13 @@ def defineFigure(df, df_with_bin, raw_column):
             b=50,
             t=50,
             pad=4
+        ),
+        legend=dict(
+            title="Year",
+            font=dict(
+                size=12
+            )
         )
-    )
-
-    # Update the bar colors to a color scheme
-    fig.update_traces(
-        marker_color='rgba(44, 123, 182, 0.8)',  # Change the bar color
-        marker_line_color='rgba(44, 123, 182, 1.0)',  # Add a darker border to the bars
-        marker_line_width=1,
-        selector=dict(type="bar")
     )
 
     fig.update_layout(bargap=0,
@@ -95,6 +101,7 @@ def defineFigure(df, df_with_bin, raw_column):
                       )
 
     return fig
+
 
 
 
