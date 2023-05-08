@@ -12,7 +12,7 @@ from shiny.ui import div, p
 def readCleanCol():
     df = pd.read_csv("2022-2023.csv")
     columns=["School Name", "Grade", "Lottery Seats", "Total Applications", "Total Matches", "Total Waitlisted",
-             "Match - No preference"]
+             "Match - No preference", "Year"]
     df=df.fillna(0)
     return(df[columns])
 
@@ -174,8 +174,12 @@ app_ui = ui.page_fluid(
             12,
             ui.row(
                 ui.column(
-                    6,
+                    3,
                     ui.input_selectize("school_filter", "Select School(s)", choices=[], multiple=True)
+                ),
+                ui.column(
+                    3,
+                    ui.input_selectize("year_filter", "Select Year(s)", choices=[], multiple=True)
                 ),
                 ui.column(
                     6,
@@ -277,6 +281,11 @@ def server(input, output, session):
     school_choices = df['School Name'].unique().tolist()
     ui.update_select("school_filter", choices=school_choices, selected=school_choices)
     input.school_filter.choices = school_choices
+    
+    # Update the choices for the year filter
+    year_choices = df['Year'].unique().tolist()
+    ui.update_select("year_filter", choices=year_choices, selected="2023-2024")
+    input.year_filter.choices = year_choices
 
     # Min and Max Lottery Seats
     min_lottery_seats, max_lottery_seats = get_min_max('Lottery Seats')
@@ -312,6 +321,7 @@ def server(input, output, session):
     def update_filtered_data():
         selected_schools = input.school_filter()
         selected_grades = input.grade_filter()
+        selected_years = input.year_filter()
 
         min_lottery_seats_value = input.min_lottery_seats_input()
         max_lottery_seats_value = input.max_lottery_seats_input()
@@ -326,6 +336,9 @@ def server(input, output, session):
 
         if selected_schools:
             filtered_df = filtered_df[filtered_df['School Name'].isin(selected_schools)]
+            
+        if selected_years:
+            filtered_df = filtered_df[filtered_df['Year'].isin(selected_years)]
 
         if selected_grades:
             filtered_df = filtered_df[filtered_df['Grade'].isin(selected_grades)]
@@ -366,6 +379,7 @@ def server(input, output, session):
         if input.reset_filters() is not None:
             ui.update_select("school_filter", selected=[])
             ui.update_select("grade_filter", selected=[])
+            ui.update_select("year_filter", selected=["2023-2024"])
             ui.update_numeric("min_lottery_seats_input", value=min_lottery_seats)
             ui.update_numeric("max_lottery_seats_input", value=max_lottery_seats)
             ui.update_numeric("min_total_applications_input", value=min_total_applications)
