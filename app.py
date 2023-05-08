@@ -50,7 +50,7 @@ def defineFigure(df, df_with_bin, raw_column):
     # Create the bar chart
     fig = go.Figure(data=bars)
     # Customize the chart's appearance
-    fig.update_layout(
+    fig.update_layout(height=350,
         title={
             'text': f'Number of Grades/Schools by {raw_column}',
             'font': {'family': 'Arial', 'size': 20, 'color': 'black'},
@@ -240,7 +240,13 @@ app_ui = ui.page_fluid(
             output_widget("plot_matched"),
         )),
 
-    ui.output_table("table")
+    ui.output_table("table"),
+    ui.row(
+        ui.column(
+            12,
+            ui.tags.a("View code and readme on GitHub", href="https://github.com/abigailhaddad/dcps_shiny", target="_blank")
+        )
+    ),
 )
 
 
