@@ -17,8 +17,8 @@ def readCleanCol():
     return(df[columns])
 
 # Define a function to create a numeric input box
-def numeric_input_box(id: str, label: str, min_val: int, max_val: int, step: int = 1, default_val: int = None):
-    return ui.input_numeric(id, label, value=default_val, min=min_val, max=max_val, step=step, width=None)
+def numeric_input_box(id: str, label: str, min_val: int, max_val: int, step: int = 1, default_val: int = None, width=None):
+    return ui.input_numeric(id, label, value=default_val, min=min_val, max=max_val, step=step, width=width)
 
 
 
@@ -157,7 +157,7 @@ app_ui = ui.page_fluid(
     ),
     ui.row(
         ui.column(
-            6,
+            12,
             ui.row(
                 ui.column(
                     6,
@@ -169,24 +169,39 @@ app_ui = ui.page_fluid(
                 ),
             ),
         ),
+    ),
+    ui.row(
         ui.column(
-            6,
+            3,
             ui.row(
-                ui.column(
-                    3,
-                    numeric_input_box("min_lottery_seats_input", "Min Lottery Seats", min_val=0, max_val=100),
-                    numeric_input_box("min_total_applications_input", "Min Total Applications", min_val=0, max_val=100),
-                    numeric_input_box("min_no_preference_input", "Min Match - No preference", min_val=0, max_val=100),
-                    numeric_input_box("min_total_waitlisted_input", "Min Total Waitlisted", min_val=0, max_val=100),
-                ),
-                ui.column(
-                    3,
-                    numeric_input_box("max_lottery_seats_input", "Max Lottery Seats", min_val=0, max_val=100),
-                    numeric_input_box("max_total_applications_input", "Max Total Applications", min_val=0, max_val=100),
-                    numeric_input_box("max_no_preference_input", "Max Match - No preference", min_val=0, max_val=100),
-                    numeric_input_box("max_total_waitlisted_input", "Max Total Waitlisted", min_val=0, max_val=100),
-                ),
+                ui.HTML("<h5>Lottery Seats</h5>"),
+                numeric_input_box("min_lottery_seats_input", "Min", min_val=0, max_val=100, width="40%"),
+                numeric_input_box("max_lottery_seats_input", "Max", min_val=0, max_val=100, width="40%")
             ),
+        ),
+        ui.column(
+            3,
+            ui.row(
+                ui.HTML("<h5>Total Applications</h5>"),
+                numeric_input_box("min_total_applications_input", "Min", min_val=0, max_val=100, width="40%"),
+                numeric_input_box("max_total_applications_input", "Max", min_val=0, max_val=100, width="40%"),
+            ),
+        ),
+        ui.column(
+          3,
+          ui.row(
+                ui.HTML("<h5>Match - No preference</h5>"),
+                numeric_input_box("min_no_preference_input", "Min", min_val=0, max_val=100, width="40%"),
+                numeric_input_box("max_no_preference_input", "Max", min_val=0, max_val=100, width="40%")
+          ),
+        ),
+        ui.column(
+          3,
+          ui.row(
+                ui.HTML("<h5>Total waitlisted</h5>"),
+                numeric_input_box("min_total_waitlisted_input", "Min", min_val=0, max_val=100, width="40%"),
+                numeric_input_box("max_total_waitlisted_input", "Max", min_val=0, max_val=100, width="40%")
+          )
         ),
     ),
 
