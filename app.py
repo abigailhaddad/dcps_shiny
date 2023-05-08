@@ -53,7 +53,7 @@ def defineFigure(df, df_with_bin, raw_column):
     fig.update_layout(
         title={
             'text': f'Number of Grades/Schools by {raw_column}',
-            'font': {'family': 'Times New Roman', 'size': 20, 'color': 'black'},
+            'font': {'family': 'Arial', 'size': 20, 'color': 'black'},
             'x': 0.5,
             'xanchor': 'center',
         },
@@ -113,6 +113,17 @@ def make_download_button(id: str, label: str, extra: Any = None):
             ),
         ),
     )
+    
+def make_reset_button(id: str, label: str, extra: Any = None):
+    return ui.row(
+        div(
+            div(
+                {"class": "card-body", "style": "padding-top: 20px;"},
+                extra,
+                ui.input_action_button(id, label, class_="btn-primary", style="font-size: 0.8rem; padding: 6px 12px; background-color: #1f77b4;"),
+            ),
+        ),
+    )
 
 
 
@@ -120,7 +131,7 @@ app_ui = ui.page_fluid(
     ui.tags.head(
         ui.tags.style("""
             body {
-              font-family: "Times New Roman", Times, serif;
+              font-family: "Arial", sans-serif;
               color: black;
               padding-left: 20px;
               padding-right: 20px;
@@ -150,8 +161,11 @@ app_ui = ui.page_fluid(
                 label="Download CSV",
             ),
         ),
+        ui.column(1,
+        make_reset_button("reset_filters", "Reset Filters"),
+        ),
         ui.column(
-            11,
+            10,
             ui.tags.h1("DCPS School Lottery Data for 2023-2024 School Year", class_="title"),
         ),
     ),
@@ -201,11 +215,11 @@ app_ui = ui.page_fluid(
                 ui.HTML("<h5>Total waitlisted</h5>"),
                 numeric_input_box("min_total_waitlisted_input", "Min", min_val=0, max_val=100, width="40%"),
                 numeric_input_box("max_total_waitlisted_input", "Max", min_val=0, max_val=100, width="40%")
+                      
           )
         ),
     ),
 
-    ui.input_action_button("reset_filters", "Reset Filters", class_="btn-primary", style="font-size: 0.8rem; padding: 6px 12px; background-color: #1f77b4;"),
 
     ui.row(
         ui.column(
