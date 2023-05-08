@@ -6,13 +6,13 @@ from shinywidgets import output_widget, register_widget
 from shiny import ui, App, render, reactive
 from typing import Any
 from shiny.ui import div, p
-
+import math
 
 
 def readCleanCol():
     df = pd.read_csv("2022-2023.csv")
     columns=["School Name", "Grade", "Lottery Seats", "Total Applications", "Total Matches", "Total Waitlisted",
-             "Match - No preference", "Year"]
+             "Match - No preference", "Year", "DCPS"]
     df=df.fillna(0)
     return(df[columns])
 
@@ -20,9 +20,6 @@ def readCleanCol():
 def numeric_input_box(id: str, label: str, min_val: int, max_val: int, step: int = 1, default_val: int = None, width=None):
     return ui.input_numeric(id, label, value=default_val, min=min_val, max=max_val, step=step, width=width)
 
-
-
-import math
 
 def defineFigure(df, df_with_bin, raw_column):
     bin_size = 25
@@ -189,8 +186,12 @@ app_ui = ui.page_fluid(
                     ui.input_selectize("year_filter", "Select Year(s)", choices=[], multiple=True)
                 ),
                 ui.column(
-                    6,
+                    3,
                     ui.input_selectize("grade_filter", "Select Grade(s)", choices=[], multiple=True)
+                ),
+                ui.column(
+                    3,
+                    ui.input_selectize("type_filter", "Select DCPS/Charter", choices=[], multiple=True)
                 ),
             ),
         ),
@@ -293,6 +294,11 @@ def server(input, output, session):
     year_choices = df['Year'].unique().tolist()
     ui.update_select("year_filter", choices=year_choices, selected="2023-2024")
     input.year_filter.choices = year_choices
+    
+    # Update the choices for the type filter
+    type_choices = df['DCPS'].unique().tolist()
+    ui.update_select("type_filter", choices=type_choices, selected=type_choices)
+    input.type_filter.choices = type_choices
 
     # Min and Max Lottery Seats
     min_lottery_seats, max_lottery_seats = get_min_max('Lottery Seats')
@@ -329,6 +335,7 @@ def server(input, output, session):
         selected_schools = input.school_filter()
         selected_grades = input.grade_filter()
         selected_years = input.year_filter()
+        selected_types = input.type_filter()
 
         min_lottery_seats_value = input.min_lottery_seats_input()
         max_lottery_seats_value = input.max_lottery_seats_input()
@@ -349,6 +356,9 @@ def server(input, output, session):
 
         if selected_grades:
             filtered_df = filtered_df[filtered_df['Grade'].isin(selected_grades)]
+            
+        if selected_types:
+            filtered_df = filtered_df[filtered_df['DCPS'].isin(selected_types)]
 
         filtered_df = filtered_df[(filtered_df['Lottery Seats'] >= min_lottery_seats_value) & (filtered_df['Lottery Seats'] <= max_lottery_seats_value)]
 
@@ -387,6 +397,7 @@ def server(input, output, session):
             ui.update_select("school_filter", selected=[])
             ui.update_select("grade_filter", selected=[])
             ui.update_select("year_filter", selected=["2023-2024"])
+            ui.update_select("type_filter", selected=["DCPS"])
             ui.update_numeric("min_lottery_seats_input", value=min_lottery_seats)
             ui.update_numeric("max_lottery_seats_input", value=max_lottery_seats)
             ui.update_numeric("min_total_applications_input", value=min_total_applications)
