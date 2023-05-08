@@ -161,11 +161,11 @@ app_ui = ui.page_fluid(
             ui.row(
                 ui.column(
                     6,
-                    ui.input_select("school_filter", "Select School(s)", choices=[], multiple=True)
+                    ui.input_selectize("school_filter", "Select School(s)", choices=[], multiple=True)
                 ),
                 ui.column(
                     6,
-                    ui.input_select("grade_filter", "Select Grade(s)", choices=[], multiple=True)
+                    ui.input_selectize("grade_filter", "Select Grade(s)", choices=[], multiple=True)
                 ),
             ),
         ),
@@ -173,14 +173,14 @@ app_ui = ui.page_fluid(
             6,
             ui.row(
                 ui.column(
-                    6,
+                    3,
                     numeric_input_box("min_lottery_seats_input", "Min Lottery Seats", min_val=0, max_val=100),
                     numeric_input_box("min_total_applications_input", "Min Total Applications", min_val=0, max_val=100),
                     numeric_input_box("min_no_preference_input", "Min Match - No preference", min_val=0, max_val=100),
                     numeric_input_box("min_total_waitlisted_input", "Min Total Waitlisted", min_val=0, max_val=100),
                 ),
                 ui.column(
-                    6,
+                    3,
                     numeric_input_box("max_lottery_seats_input", "Max Lottery Seats", min_val=0, max_val=100),
                     numeric_input_box("max_total_applications_input", "Max Total Applications", min_val=0, max_val=100),
                     numeric_input_box("max_no_preference_input", "Max Match - No preference", min_val=0, max_val=100),
@@ -229,9 +229,9 @@ def server(input, output, session):
 
     # Sort the list of unique grade choices and update the grade filter
     sorted_grades = sorted(df['Grade'].unique().tolist(), key=custom_grade_sort)
-    ui.update_select("grade_filter", choices=sorted_grades)
+    ui.update_select("grade_filter", choices=sorted_grades, selected=sorted_grades)
     input.grade_filter.choices = sorted_grades
-
+  
 
     # Define function to get min and max values for a specific column in the DataFrame
     def get_min_max(column):
@@ -239,8 +239,9 @@ def server(input, output, session):
       
     
     # Update the choices for the school filter
-    ui.update_select("school_filter", choices=df['School Name'].unique().tolist())
-    input.school_filter.choices = df['School Name'].unique().tolist()
+    school_choices = df['School Name'].unique().tolist()
+    ui.update_select("school_filter", choices=school_choices, selected=school_choices)
+    input.school_filter.choices = school_choices
 
     # Min and Max Lottery Seats
     min_lottery_seats, max_lottery_seats = get_min_max('Lottery Seats')
@@ -274,38 +275,35 @@ def server(input, output, session):
 
     @reactive.Effect
     def update_filtered_data():
-      selected_schools = input.school_filter()
-      selected_grades = input.grade_filter()
-      min_lottery_seats = input.min_lottery_seats_input()
-      max_lottery_seats = input.max_lottery_seats_input()
-      min_total_applications = input.min_total_applications_input()
-      max_total_applications = input.max_total_applications_input()
-      min_no_preference = input.min_no_preference_input()
-      max_no_preference = input.max_no_preference_input()
-      min_total_waitlisted = input.min_total_waitlisted_input()
-      max_total_waitlisted = input.max_total_waitlisted_input()
+        selected_schools = input.school_filter()
+        selected_grades = input.grade_filter()
 
-      filtered_df = df.copy()
+        min_lottery_seats_value = input.min_lottery_seats_input()
+        max_lottery_seats_value = input.max_lottery_seats_input()
+        min_total_applications_value = input.min_total_applications_input()
+        max_total_applications_value = input.max_total_applications_input()
+        min_no_preference_value = input.min_no_preference_input()
+        max_no_preference_value = input.max_no_preference_input()
+        min_total_waitlisted_value = input.min_total_waitlisted_input()
+        max_total_waitlisted_value = input.max_total_waitlisted_input()
 
-      if selected_schools:
-        filtered_df = filtered_df[filtered_df['School Name'].isin(selected_schools)]
+        filtered_df = df.copy()
 
-      if selected_grades:
-        filtered_df = filtered_df[filtered_df['Grade'].isin(selected_grades)]
+        if selected_schools:
+            filtered_df = filtered_df[filtered_df['School Name'].isin(selected_schools)]
 
-      if min_lottery_seats is not None and max_lottery_seats is not None:
-        filtered_df = filtered_df[(filtered_df['Lottery Seats'] >= min_lottery_seats) & (filtered_df['Lottery Seats'] <= max_lottery_seats)]
+        if selected_grades:
+            filtered_df = filtered_df[filtered_df['Grade'].isin(selected_grades)]
 
-      if min_total_applications is not None and max_total_applications is not None:
-        filtered_df = filtered_df[(filtered_df['Total Applications'] >= min_total_applications) & (filtered_df['Total Applications'] <= max_total_applications)]
+        filtered_df = filtered_df[(filtered_df['Lottery Seats'] >= min_lottery_seats_value) & (filtered_df['Lottery Seats'] <= max_lottery_seats_value)]
 
-      if min_no_preference is not None and max_no_preference is not None:
-        filtered_df = filtered_df[(filtered_df["Match - No preference"] >= min_no_preference) & (filtered_df["Match - No preference"] <= max_no_preference)]
+        filtered_df = filtered_df[(filtered_df['Total Applications'] >= min_total_applications_value) & (filtered_df['Total Applications'] <= max_total_applications_value)]
 
-      if min_total_waitlisted is not None and max_total_waitlisted is not None:
-        filtered_df = filtered_df[(filtered_df['Total Waitlisted'] >= min_total_waitlisted) & (filtered_df['Total Waitlisted'] <= max_total_waitlisted)]
+        filtered_df = filtered_df[(filtered_df["Match - No preference"] >= min_no_preference_value) & (filtered_df["Match - No preference"] <= max_no_preference_value)]
 
-      filtered_data.set(filtered_df)
+        filtered_df = filtered_df[(filtered_df['Total Waitlisted'] >= min_total_waitlisted_value) & (filtered_df['Total Waitlisted'] <= max_total_waitlisted_value)]
+
+        filtered_data.set(filtered_df)
 
 
     @reactive.Effect
