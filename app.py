@@ -76,7 +76,7 @@ def defineFigure(df, df_with_bin, raw_column):
             gridcolor='rgba(200, 200, 200, 0.2)'  # Light gray grid lines
         ),
         yaxis=dict(
-            gridcolor='rgba(200, 200, 200, 0.2)'  # Light gray grid lines
+            gridcolor='rgba(200, 200, 200, 0.2)',  # Light gray grid lines,
         ),
         margin=dict(  # Add some padding around the chart
             l=50,
@@ -86,10 +86,16 @@ def defineFigure(df, df_with_bin, raw_column):
             pad=4
         ),
         legend=dict(
-            title="Year",
+            title="School Year",
             font=dict(
                 size=12
-            )
+            ),
+            x=.95,
+            y=.95,
+            xanchor='right',
+            yanchor='top',
+            bordercolor='rgba(0, 0, 0, .5)',  # Black border color
+            borderwidth=1
         )
     )
 
