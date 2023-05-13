@@ -5,14 +5,15 @@ import plotly.graph_objs as go
 from shinywidgets import output_widget, register_widget
 from shiny import ui, App, render, reactive
 from typing import Any
-from shiny.ui import div, p
-import math
+from shiny.ui import div
 
 
+import os
+os.chdir(r"C:\Users\abiga\OneDrive\Documents\PythonScripts\shiny\my_app")
 def readCleanCol():
-    df = pd.read_csv("2022-2023.csv")
-    columns=["School Name", "Grade", "Lottery Seats", "Total Applications", "Total Matches", "Total Waitlisted",
-             "Match - No preference", "Year", "DCPS"]
+    df = pd.read_csv("cleaned_dc_data.csv")
+    columns=["School Name", "Grade", "Lottery Seats", "Matches on Results Day", "Total Waitlisted",
+             "Match - No Preference", "Year", "DCPS"]
     df=df.fillna(0)
     return(df[columns])
 
@@ -37,7 +38,7 @@ def defineFigure(df, df_with_bin, raw_column):
         for bin_value, count in bin_counts_grouped.items():
             schools_with_this_bin = year_bin_counts[year_bin_counts['Bin'] == bin_value]
             hover_text = "<br>".join([
-               f"School Name: {row['School Name']} <br>Grade: {row['Grade']} <br>Year: {row['Year']} <br>{raw_column}: {df.loc[(df['School Name'] == row['School Name']) & (df['Grade'] == row['Grade']), raw_column].values[0]}"
+               f"<br>School Name: {row['School Name']} <br>Grade: {row['Grade']} <br>Year: {row['Year']} <br>{raw_column}: {df.loc[(df['School Name'] == row['School Name']) & (df['Grade'] == row['Grade']), raw_column].values[0]}"
                for _, row in schools_with_this_bin.iterrows()])
 
             bars.append(go.Bar(
@@ -66,7 +67,7 @@ def defineFigure(df, df_with_bin, raw_column):
         yaxis_title='Count',
         barmode='stack',
         font=dict(
-            family="Times New Roman",
+            family="Arial",
             size=16,
             color="black"
         ),
@@ -176,7 +177,7 @@ app_ui = ui.page_fluid(
         ),
         ui.column(
             10,
-            ui.tags.h1("DCPS School Lottery Data for 2023-2024 School Year", class_="title"),
+            ui.tags.h1("DC School Lottery Data for 2023-2024 School Year", class_="title"),
         ),
     ),
     ui.row(
@@ -214,15 +215,15 @@ app_ui = ui.page_fluid(
         ui.column(
             3,
             ui.row(
-                ui.HTML("<h5>Total Applications</h5>"),
-                numeric_input_box("min_total_applications_input", "Min", min_val=0, max_val=100, width="40%"),
-                numeric_input_box("max_total_applications_input", "Max", min_val=0, max_val=100, width="40%"),
+                ui.HTML("<h5>Matches on Results Day</h5>"),
+                numeric_input_box("min_total_matches_input", "Min", min_val=0, max_val=100, width="40%"),
+                numeric_input_box("max_total_matches_input", "Max", min_val=0, max_val=100, width="40%"),
             ),
         ),
         ui.column(
           3,
           ui.row(
-                ui.HTML("<h5>Match - No preference</h5>"),
+                ui.HTML("<h5>Match - No Preference</h5>"),
                 numeric_input_box("min_no_preference_input", "Min", min_val=0, max_val=100, width="40%"),
                 numeric_input_box("max_no_preference_input", "Max", min_val=0, max_val=100, width="40%")
           ),
@@ -230,7 +231,7 @@ app_ui = ui.page_fluid(
         ui.column(
           3,
           ui.row(
-                ui.HTML("<h5>Total waitlisted</h5>"),
+                ui.HTML("<h5>Total Waitlisted</h5>"),
                 numeric_input_box("min_total_waitlisted_input", "Min", min_val=0, max_val=100, width="40%"),
                 numeric_input_box("max_total_waitlisted_input", "Max", min_val=0, max_val=100, width="40%")
                       
@@ -313,15 +314,15 @@ def server(input, output, session):
     input.min_lottery_seats_input.value = min_lottery_seats
     input.max_lottery_seats_input.value = max_lottery_seats
 
-    # Min and Max Total Applications
-    min_total_applications, max_total_applications = get_min_max('Total Applications')
-    ui.update_numeric("min_total_applications_input", value=min_total_applications)
-    ui.update_numeric("max_total_applications_input", value=max_total_applications)
-    input.min_total_applications_input.value = min_total_applications
-    input.max_total_applications_input.value = max_total_applications
+    # Min and Max Matches on Results Day
+    min_total_matches, max_total_matches = get_min_max('Matches on Results Day')
+    ui.update_numeric("min_total_matches_input", value=min_total_matches)
+    ui.update_numeric("max_total_matches_input", value=max_total_matches)
+    input.min_total_matches_input.value = min_total_matches
+    input.max_total_matches_input.value = max_total_matches
 
     # Min and Max Match - No preference
-    min_no_preference, max_no_preference = get_min_max("Match - No preference")
+    min_no_preference, max_no_preference = get_min_max("Match - No Preference")
     ui.update_numeric("min_no_preference_input", value=min_no_preference)
     ui.update_numeric("max_no_preference_input", value=max_no_preference)
     input.min_no_preference_input.value = min_no_preference
@@ -345,8 +346,8 @@ def server(input, output, session):
 
         min_lottery_seats_value = input.min_lottery_seats_input()
         max_lottery_seats_value = input.max_lottery_seats_input()
-        min_total_applications_value = input.min_total_applications_input()
-        max_total_applications_value = input.max_total_applications_input()
+        min_total_matches_value = input.min_total_matches_input()
+        max_total_matches_value = input.max_total_matches_input()
         min_no_preference_value = input.min_no_preference_input()
         max_no_preference_value = input.max_no_preference_input()
         min_total_waitlisted_value = input.min_total_waitlisted_input()
@@ -368,9 +369,9 @@ def server(input, output, session):
 
         filtered_df = filtered_df[(filtered_df['Lottery Seats'] >= min_lottery_seats_value) & (filtered_df['Lottery Seats'] <= max_lottery_seats_value)]
 
-        filtered_df = filtered_df[(filtered_df['Total Applications'] >= min_total_applications_value) & (filtered_df['Total Applications'] <= max_total_applications_value)]
+        filtered_df = filtered_df[(filtered_df['Matches on Results Day'] >= min_total_matches_value) & (filtered_df['Matches on Results Day'] <= max_total_matches_value)]
 
-        filtered_df = filtered_df[(filtered_df["Match - No preference"] >= min_no_preference_value) & (filtered_df["Match - No preference"] <= max_no_preference_value)]
+        filtered_df = filtered_df[(filtered_df["Match - No Preference"] >= min_no_preference_value) & (filtered_df["Match - No Preference"] <= max_no_preference_value)]
 
         filtered_df = filtered_df[(filtered_df['Total Waitlisted'] >= min_total_waitlisted_value) & (filtered_df['Total Waitlisted'] <= max_total_waitlisted_value)]
 
@@ -389,11 +390,11 @@ def server(input, output, session):
         plot_widget_lottery = go.FigureWidget(fig_lottery)
         register_widget("plot_lottery", plot_widget_lottery)
 
-        fig_applications = defineFigure(filtered_df, df, 'Total Applications')
+        fig_applications = defineFigure(filtered_df, df, 'Matches on Results Day')
         plot_widget_applications = go.FigureWidget(fig_applications)
         register_widget("plot_applications", plot_widget_applications)
 
-        fig_matched = defineFigure(filtered_df, df, "Match - No preference")
+        fig_matched = defineFigure(filtered_df, df, "Match - No Preference")
         plot_widget_matched = go.FigureWidget(fig_matched)
         register_widget("plot_matched", plot_widget_matched)
 
@@ -403,11 +404,11 @@ def server(input, output, session):
             ui.update_select("school_filter", selected=[])
             ui.update_select("grade_filter", selected=[])
             ui.update_select("year_filter", selected=["2023-2024"])
-            ui.update_select("type_filter", selected=["DCPS"])
+            ui.update_select("type_filter", selected=["DCPS", "Charter"])
             ui.update_numeric("min_lottery_seats_input", value=min_lottery_seats)
             ui.update_numeric("max_lottery_seats_input", value=max_lottery_seats)
-            ui.update_numeric("min_total_applications_input", value=min_total_applications)
-            ui.update_numeric("max_total_applications_input", value=max_total_applications)
+            ui.update_numeric("min_total_matches_input", value=min_total_matches)
+            ui.update_numeric("max_total_matches_input", value=max_total_matches)
             ui.update_numeric("min_no_preference_input", value=min_no_preference)
             ui.update_numeric("max_no_preference_input", value=max_no_preference)
             ui.update_numeric("min_total_waitlisted_input", value=min_total_waitlisted)
@@ -422,7 +423,6 @@ def server(input, output, session):
         corresponds to this function.
         """
 
-        path = "2022-2023.csv"
         return path
     
     @output
