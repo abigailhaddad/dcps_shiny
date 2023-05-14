@@ -11,7 +11,7 @@ from shiny.ui import div
 import os
 os.chdir(r"C:\Users\abiga\OneDrive\Documents\PythonScripts\shiny\my_app")
 def readCleanCol():
-    df = pd.read_csv("cleaned_dc_data.csv")
+    df = pd.read_csv(r"data/cleaned_dc_data.csv")
     columns=["School Name", "Grade", "Lottery Seats", "Matches on Results Day", "Total Waitlisted",
              "Match - No Preference", "Year", "DCPS"]
     df=df.fillna(0)
