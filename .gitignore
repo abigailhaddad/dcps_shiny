@@ -2,4 +2,5 @@
 www/
  __pycache__/
 data/
-
+.Rdata
+.Rhistory
