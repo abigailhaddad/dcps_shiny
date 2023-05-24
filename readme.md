@@ -4,15 +4,27 @@ This repository contains two main Python scripts (`cleaning_data.py` and `app.py
 
 ## Data Cleaning (`cleaning_data.py`)
 
-The `cleaning_data.py` script processes raw data from an Excel file named `20230405_2023_MSDC_Tableau_Public_Summary_Data.xlsx`. The script performs several operations to clean and prepare the data for visualization:
+"""
+The script `cleaning_data.py` performs a sequence of operations to clean and process an Excel file named `20230405_2023_MSDC_Tableau_Public_Summary_Data.xlsx`:
 
-1. **Load and Prepare Data**: Data is loaded from the Excel file and relevant data fields are extracted and prepared for further operations.
-2. **Data Merging**: Related data fields are merged to create more comprehensive and usable information.
-3. **Data Validation**: Checks are performed to ensure data consistency and integrity.
-4. **Data Extraction**: Specific subsets of data are extracted based on defined conditions for focused analysis.
-5. **Data Classification**: Schools are classified into 'Charter' and 'DCPS' categories based on information retrieved from an external website.
-6. **Data Transformation**: Certain data fields are transformed to more standardized and interpretable formats.
-7. **Data Export**: The cleaned and processed data is exported as a CSV file named `cleaned_dc_data.csv`.
+1. **Load Data**: Reads data from two sheets of an Excel file.
+
+2. **Prepare Data**: Creates a new composite key, 'School Grade Code', from 'MSDC School Code' and 'Grade' columns in one of the sheets. It also updates the column name 'Matches' to 'Matches_specific_type'.
+
+3. **Merge Data**: Combines data from both Excel sheets based on the columns 'School Grade Code', 'Grade', and 'Lottery Year'.
+
+4. **Data Validation**: Checks to ensure that the sum of 'Matches_specific_type' for each 'School Grade Code' matches with the 'Matches' column.
+
+5. **Data Extraction**: Isolates records where the 'Preference Name' is "No Preference".
+
+6. **Data Classification**: Uses an external list of charter schools to categorize schools in the data as either 'Charter' or 'DCPS' (District of Columbia Public Schools).
+
+7. **Data Transformation**: Transforms the 'MSDC School Code' to a numerical format by extracting numbers and refactors the 'Lottery Year' to a more conventional format. Certain column names are also updated for clarity.
+
+8. **Data Export**: Outputs the processed data as a CSV file named `cleaned_dc_data.csv`.
+"""
+
+
 
 ## Dashboard Usage (`app.py`)
 
