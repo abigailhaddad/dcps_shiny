@@ -9,7 +9,7 @@ from shiny.ui import div
 import os
 
 def readCleanCol():
-    df = pd.read_csv(r"data/cleaned_dc_data.csv")
+    df = pd.read_csv("cleaned_dc_data.csv")
     columns=["School Name", "Grade", "Lottery Seats", "Matches on Results Day", "Total Waitlisted",
              "Match - No Preference", "Year", "DCPS"]
     df=df.fillna(0)
@@ -420,6 +420,7 @@ def server(input, output, session):
         Note that the function name (`download1`) determines which download_button()
         corresponds to this function.
         """
+        path = "cleaned_dc_data.csv"
 
         return path
     
